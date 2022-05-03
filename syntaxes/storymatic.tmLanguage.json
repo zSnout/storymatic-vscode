@@ -1,21 +1,69 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Storymatic",
-  "patterns": [
-    { "include": "#keywords" },
-    { "include": "#constants" },
-    { "include": "#strings" }
-  ],
+  "patterns": [{ "include": "#global" }],
   "repository": {
+    "global": {
+      "patterns": [
+        { "include": "#parenthesized" },
+        { "include": "#bracketed" },
+        { "include": "#object" },
+        { "include": "#separators" },
+        { "include": "#constants" },
+        { "include": "#strings" },
+        { "include": "#jsx-self-closing" },
+        { "include": "#jsx-open-close" },
+        { "include": "#keywords" }
+      ]
+    },
+    "parenthesized": {
+      "begin": "\\(",
+      "end": "\\)",
+      "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
+      "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
+      "patterns": [{ "include": "#global" }]
+    },
+    "bracketed": {
+      "begin": "\\[",
+      "end": "\\]",
+      "name": "meta.array.literal.storymatic",
+      "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
+      "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
+      "patterns": [{ "include": "#global" }]
+    },
+    "object": {
+      "begin": "\\{",
+      "end": "\\}",
+      "name": "meta.object.literal.storymatic",
+      "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
+      "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
+      "patterns": [{ "include": "#global" }]
+    },
+    "separators": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.comma.storymatic",
+          "match": ","
+        },
+        {
+          "name": "punctuation.separator.semicolon.storymatic",
+          "match": ";"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {
           "name": "keyword.control.storymatic",
-          "match": "\\b(if|else|then|print|throw|for|while|until|unless|down|do|repeat|step|to|through|return|break|continue|fn|import|export|class|try|catch|finally|switch|case|rescope|down|type|interface|namespace|with)\\b"
+          "match": "\\b(if|else|then|print|throw|for|while|until|unless|down|do|repeat|step|to|through|return|break|continue|fn|import|export|class|try|catch|finally|switch|case|default|rescope|down|type|interface|namespace|with|readonly|interface|enum|extends|implements|private|public|protected)\\b"
         },
         {
           "name": "keyword.operator.storymatic",
-          "match": "\\b(and|or|not|isnt|is|new|in|typeof|type|of|from|as|extends|await)\\b"
+          "match": "\\b(and|or|not|isnt(\\s+a)?|is(\\s+a)?|new|in|typeof|type|of|from|as|await|infer|yield)\\b"
+        },
+        {
+          "name": "keyword.operator.storymatic",
+          "match": "\\+|-|\\*|\\/|^|\\.\\.\\.|%|<|>|=|!|&|\\||\\?|:"
         }
       ]
     },
@@ -38,14 +86,97 @@
           "captures": {
             "1": { "name": "storage.type.numeric.storymatic" }
           },
-          "match": "[+-]?\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(\\w+)?"
+          "match": "\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(\\w+)?"
+        }
+      ]
+    },
+    "jsx-open-close": {
+      "name": "meta.tag.storymatic",
+      "patterns": [
+        {
+          "begin": "(<)\\s*(\\w+(?:\\.\\w+)*)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.storymatic" },
+            "2": { "name": "entity.name.tag.storymatic" }
+          },
+          "end": ">",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.storymatic" }
+          },
+          "patterns": [{ "include": "#jsx-attributes" }]
+        },
+        {
+          "begin": "(?<=>)",
+          "end": "(?=<\\/)",
+          "patterns": [{ "include": "#jsx-children" }]
+        },
+        {
+          "match": "(</)\\s*(\\w+(?:\\.\\w+)*)\\s*(>)",
+          "captures": {
+            "1": { "name": "punctuation.definition.tag.storymatic" },
+            "2": { "name": "entity.name.tag.storymatic" },
+            "3": { "name": "punctuation.definition.tag.storymatic" }
+          }
+        }
+      ]
+    },
+    "jsx-self-closing": {
+      "name": "meta.tag.storymatic",
+      "begin": "(<)\\s*(\\w+(?:\\.\\w+)*)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.storymatic" },
+        "2": { "name": "entity.name.tag.storymatic" }
+      },
+      "end": "\\/>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.storymatic" }
+      },
+      "patterns": [{ "include": "#jsx-attributes" }]
+    },
+    "jsx-attributes": {
+      "name": "meta.tag.attributes.storymatic",
+      "begin": "\\s+",
+      "end": "(?=\\/|>)",
+      "patterns": [
+        {
+          "include": "#strings"
+        },
+        {
+          "name": "entity.other.attribute-name.storymatic",
+          "match": "\\w+"
+        },
+        {
+          "name": "keyword.operator.assignment.storymatic",
+          "match": "="
+        },
+        {
+          "begin": "\\{",
+          "end": "\\}",
+          "patterns": [{ "include": "#global" }]
+        }
+      ]
+    },
+    "jsx-children": {
+      "patterns": [
+        {
+          "include": "#jsx"
+        },
+        {
+          "name": "meta.jsx.children.storymatic",
+          "begin": "\\{",
+          "end": "\\}",
+          "patterns": [{ "include": "#global" }]
+        },
+        {
+          "name": "meta.jsx.children.storymatic",
+          "match": "[^{<]+"
         }
       ]
     },
     "strings": {
+      "begin": "([\"'])",
+      "end": "\\1",
       "name": "string.quoted.double.storymatic",
-      "begin": "\"",
-      "end": "\"",
       "patterns": [
         {
           "name": "constant.character.escape.storymatic",
@@ -62,6 +193,12 @@
         {
           "name": "constant.character.escape.storymatic",
           "match": "\\\\."
+        },
+        {
+          "begin": "\\{",
+          "end": "\\}",
+          "name": "meta.template.expression.storymatic meta.embedded.line.storymatic",
+          "patterns": [{ "include": "#global" }]
         }
       ]
     }
