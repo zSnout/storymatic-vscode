@@ -11,8 +11,7 @@
         { "include": "#separators" },
         { "include": "#constants" },
         { "include": "#strings" },
-        { "include": "#jsx-self-closing" },
-        { "include": "#jsx-open-close" },
+        { "include": "#jsx-element" },
         { "include": "#keywords" }
       ]
     },
@@ -59,7 +58,7 @@
         },
         {
           "name": "keyword.operator.storymatic",
-          "match": "\\b(and|or|not|isnt(\\s+a)?|is(\\s+a)?|new|in|typeof|type|of|from|as|await|infer|yield)\\b"
+          "match": "\\b(and|or|not|isnt(\\s+an?)?|is(\\s+an?)?|new|in|typeof|type|of|from|as|await|infer|yield)\\b"
         },
         {
           "name": "keyword.operator.storymatic",
@@ -90,28 +89,31 @@
         }
       ]
     },
-    "jsx-open-close": {
+    "jsx-element": {
       "name": "meta.tag.storymatic",
       "patterns": [
         {
-          "begin": "(<)\\s*(\\w+(?:\\.\\w+)*)",
+          "begin": "(<)(\\w+(?:\\.\\w+)*)",
           "beginCaptures": {
             "1": { "name": "punctuation.definition.tag.storymatic" },
             "2": { "name": "entity.name.tag.storymatic" }
           },
-          "end": ">",
+          "end": "\\/?>",
           "endCaptures": {
             "0": { "name": "punctuation.definition.tag.storymatic" }
           },
           "patterns": [{ "include": "#jsx-attributes" }]
         },
         {
-          "begin": "(?<=>)",
-          "end": "(?=<\\/)",
+          "begin": "(?<=[^\\/]>)",
+          "end": "</",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.storymatic" }
+          },
           "patterns": [{ "include": "#jsx-children" }]
         },
         {
-          "match": "(</)\\s*(\\w+(?:\\.\\w+)*)\\s*(>)",
+          "match": "(</)(\\w+(?:\\.\\w+)*)\\s*(>)",
           "captures": {
             "1": { "name": "punctuation.definition.tag.storymatic" },
             "2": { "name": "entity.name.tag.storymatic" },
@@ -120,23 +122,10 @@
         }
       ]
     },
-    "jsx-self-closing": {
-      "name": "meta.tag.storymatic",
-      "begin": "(<)\\s*(\\w+(?:\\.\\w+)*)",
-      "beginCaptures": {
-        "1": { "name": "punctuation.definition.tag.storymatic" },
-        "2": { "name": "entity.name.tag.storymatic" }
-      },
-      "end": "\\/>",
-      "endCaptures": {
-        "0": { "name": "punctuation.definition.tag.storymatic" }
-      },
-      "patterns": [{ "include": "#jsx-attributes" }]
-    },
     "jsx-attributes": {
       "name": "meta.tag.attributes.storymatic",
       "begin": "\\s+",
-      "end": "(?=\\/|>)",
+      "end": "(?=\\/?>)",
       "patterns": [
         {
           "include": "#strings"
@@ -159,17 +148,14 @@
     "jsx-children": {
       "patterns": [
         {
-          "include": "#jsx"
+          "name": "meta.jsx.children.storymatic",
+          "include": "#jsx-element"
         },
         {
           "name": "meta.jsx.children.storymatic",
-          "begin": "\\{",
-          "end": "\\}",
+          "begin": "(.*)\\{",
+          "end": "\\}(.*)",
           "patterns": [{ "include": "#global" }]
-        },
-        {
-          "name": "meta.jsx.children.storymatic",
-          "match": "[^{<]+"
         }
       ]
     },
