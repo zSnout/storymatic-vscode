@@ -2,19 +2,43 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Storymatic",
   "patterns": [
-    {
-      "include": "#keywords"
-    },
-    {
-      "include": "#strings"
-    }
+    { "include": "#keywords" },
+    { "include": "#constants" },
+    { "include": "#strings" }
   ],
   "repository": {
     "keywords": {
       "patterns": [
         {
           "name": "keyword.control.storymatic",
-          "match": "\\b(if|while|for|return)\\b"
+          "match": "\\b(if|else|then|print|throw|for|while|until|unless|down|do|repeat|step|to|through|return|break|continue|fn|import|export|class|try|catch|finally|switch|case|rescope|down|type|interface|namespace|with)\\b"
+        },
+        {
+          "name": "keyword.operator.storymatic",
+          "match": "\\b(and|or|not|isnt|is|new|in|typeof|type|of|from|as|extends|await)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.storymatic",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.storymatic",
+          "match": "\\bnull\\b"
+        },
+        {
+          "name": "constant.language.undefined.storymatic",
+          "match": "\\bundefined\\b"
+        },
+        {
+          "name": "constant.numeric.storymatic",
+          "captures": {
+            "1": { "name": "storage.type.numeric.storymatic" }
+          },
+          "match": "[+-]?\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?(\\w+)?"
         }
       ]
     },
@@ -23,6 +47,18 @@
       "begin": "\"",
       "end": "\"",
       "patterns": [
+        {
+          "name": "constant.character.escape.storymatic",
+          "match": "\\\\x[0-9a-fA-F]{2}"
+        },
+        {
+          "name": "constant.character.escape.storymatic",
+          "match": "\\\\u[0-9a-fA-F]{4}"
+        },
+        {
+          "name": "constant.character.escape.storymatic",
+          "match": "\\\\u\\{[0-9a-fA-F]+\\}"
+        },
         {
           "name": "constant.character.escape.storymatic",
           "match": "\\\\."
