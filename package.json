@@ -2,9 +2,9 @@
   "name": "storymatic",
   "displayName": "Storymatic",
   "description": "Storymatic language support with built-in compiling",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.50.0"
   },
   "categories": [
     "Programming Languages"
