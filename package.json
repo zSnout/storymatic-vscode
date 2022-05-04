@@ -32,5 +32,8 @@
         "path": "./syntaxes/storymatic.tmLanguage.json"
       }
     ]
+  },
+  "dependencies": {
+    "storymatic": "^2.0.7"
   }
 }
