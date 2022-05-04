@@ -1,7 +1,6 @@
 # Storymatic
 
-This is the README for your extension "storymatic". After writing up a brief
-description, we recommend including the following sections.
+Storymatic is a simple yet powerful and feature-rich programming language.
 
 ## Features
 
