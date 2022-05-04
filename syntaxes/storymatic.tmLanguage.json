@@ -1,26 +1,23 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Storymatic",
-  "patterns": [{ "include": "#global" }],
+  "patterns": [
+    { "include": "#parenthesized" },
+    { "include": "#bracketed" },
+    { "include": "#object" },
+    { "include": "#separators" },
+    { "include": "#constants" },
+    { "include": "#strings" },
+    { "include": "#jsx" },
+    { "include": "#keywords" }
+  ],
   "repository": {
-    "global": {
-      "patterns": [
-        { "include": "#parenthesized" },
-        { "include": "#bracketed" },
-        { "include": "#object" },
-        { "include": "#separators" },
-        { "include": "#constants" },
-        { "include": "#strings" },
-        { "include": "#jsx-element" },
-        { "include": "#keywords" }
-      ]
-    },
     "parenthesized": {
       "begin": "\\(",
       "end": "\\)",
       "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
       "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
-      "patterns": [{ "include": "#global" }]
+      "patterns": [{ "include": "source.storymatic" }]
     },
     "bracketed": {
       "begin": "\\[",
@@ -28,7 +25,7 @@
       "name": "meta.array.literal.storymatic",
       "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
       "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
-      "patterns": [{ "include": "#global" }]
+      "patterns": [{ "include": "source.storymatic" }]
     },
     "object": {
       "begin": "\\{",
@@ -36,7 +33,7 @@
       "name": "meta.object.literal.storymatic",
       "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
       "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
-      "patterns": [{ "include": "#global" }]
+      "patterns": [{ "include": "source.storymatic" }]
     },
     "separators": {
       "patterns": [
@@ -58,11 +55,11 @@
         },
         {
           "name": "keyword.operator.storymatic",
-          "match": "\\b(and|or|not|isnt(\\s+an?)?|is(\\s+an?)?|new|in|typeof|type|of|from|as|await|infer|yield)\\b"
+          "match": "\\b(and|or|not|isnt|is|a|an|new|in|typeof|type|of|from|as|await|infer|yield)\\b"
         },
         {
           "name": "keyword.operator.storymatic",
-          "match": "\\+|-|\\*|\\/|^|\\.\\.\\.|%|<|>|=|!|&|\\||\\?|:"
+          "match": "[-+*/^.%<>=!&|?:]"
         }
       ]
     },
@@ -89,104 +86,172 @@
         }
       ]
     },
-    "jsx-element": {
-      "name": "meta.tag.storymatic",
+    "jsx": {
       "patterns": [
-        {
-          "begin": "(<)(\\w+(?:\\.\\w+)*)",
-          "beginCaptures": {
-            "1": { "name": "punctuation.definition.tag.storymatic" },
-            "2": { "name": "entity.name.tag.storymatic" }
-          },
-          "end": "\\/?>",
-          "endCaptures": {
-            "0": { "name": "punctuation.definition.tag.storymatic" }
-          },
-          "patterns": [{ "include": "#jsx-attributes" }]
-        },
-        {
-          "begin": "(?<=[^\\/]>)",
-          "end": "</",
-          "endCaptures": {
-            "0": { "name": "punctuation.definition.tag.storymatic" }
-          },
-          "patterns": [{ "include": "#jsx-children" }]
-        },
-        {
-          "match": "(</)(\\w+(?:\\.\\w+)*)\\s*(>)",
-          "captures": {
-            "1": { "name": "punctuation.definition.tag.storymatic" },
-            "2": { "name": "entity.name.tag.storymatic" },
-            "3": { "name": "punctuation.definition.tag.storymatic" }
-          }
-        }
+        { "include": "#jsx-tag-without-attributes-in-expression" },
+        { "include": "#jsx-tag-in-expression" }
       ]
     },
-    "jsx-attributes": {
-      "name": "meta.tag.attributes.storymatic",
-      "begin": "\\s+",
-      "end": "(?=\\/?>)",
+    "jsx-tag-without-attributes-in-expression": {
+      "begin": "(?<!\\+\\+|--)(?<=[({\\[,?=>:*]|&&|\\|\\||\\?|\\*\\/|^await|[^\\._$[:alnum:]]await|^return|[^\\._$[:alnum:]]return|^default|[^\\._$[:alnum:]]default|^yield|[^\\._$[:alnum:]]yield|^)\\s*(?=(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))?\\s*(>))",
+      "end": "(?!(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))?\\s*(>))",
+      "patterns": [{ "include": "#jsx-tag-without-attributes" }]
+    },
+    "jsx-tag-without-attributes": {
+      "name": "meta.tag.without-attributes.storymatic",
+      "begin": "(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))?\\s*(>)",
+      "end": "(</)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))?\\s*(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.storymatic" },
+        "2": { "name": "entity.name.tag.namespace.storymatic" },
+        "3": { "name": "punctuation.separator.namespace.storymatic" },
+        "4": { "name": "entity.name.tag.storymatic" },
+        "5": { "name": "support.class.component.storymatic" },
+        "6": { "name": "punctuation.definition.tag.end.storymatic" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.storymatic" },
+        "2": { "name": "entity.name.tag.namespace.storymatic" },
+        "3": { "name": "punctuation.separator.namespace.storymatic" },
+        "4": { "name": "entity.name.tag.storymatic" },
+        "5": { "name": "support.class.component.storymatic" },
+        "6": { "name": "punctuation.definition.tag.end.storymatic" }
+      },
+      "contentName": "meta.jsx.children.storymatic",
+      "patterns": [{ "include": "#jsx-children" }]
+    },
+    "jsx-tag-in-expression": {
+      "begin": "(?x)\n  (?<!\\+\\+|--)(?<=[({\\[,?=>:*]|&&|\\|\\||\\?|\\*\\/|^await|[^\\._$[:alnum:]]await|^return|[^\\._$[:alnum:]]return|^default|[^\\._$[:alnum:]]default|^yield|[^\\._$[:alnum:]]yield|^)\\s*\n  (?!<\\s*[_$[:alpha:]][_$[:alnum:]]*((\\s+extends\\s+[^=>])|,)) # look ahead is not type parameter of arrow\n  (?=(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))(?=((<\\s*)|(\\s+))(?!\\?)|\\/?>))",
+      "end": "(?!(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))(?=((<\\s*)|(\\s+))(?!\\?)|\\/?>))",
+      "patterns": [{ "include": "#jsx-tag" }]
+    },
+    "jsx-tag": {
+      "name": "meta.tag.storymatic",
+      "begin": "(?=(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))(?=((<\\s*)|(\\s+))(?!\\?)|\\/?>))",
+      "end": "(/>)|(?:(</)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))?\\s*(>))",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.end.storymatic" },
+        "2": { "name": "punctuation.definition.tag.begin.storymatic" },
+        "3": { "name": "entity.name.tag.namespace.storymatic" },
+        "4": { "name": "punctuation.separator.namespace.storymatic" },
+        "5": { "name": "entity.name.tag.storymatic" },
+        "6": { "name": "support.class.component.storymatic" },
+        "7": { "name": "punctuation.definition.tag.end.storymatic" }
+      },
       "patterns": [
         {
-          "include": "#strings"
+          "begin": "(<)\\s*(?:([_$[:alpha:]][-_$[:alnum:].]*)(?<!\\.|-)(:))?((?:[a-z][a-z0-9]*|([_$[:alpha:]][-_$[:alnum:].]*))(?<!\\.|-))(?=((<\\s*)|(\\s+))(?!\\?)|\\/?>)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.begin.storymatic" },
+            "2": { "name": "entity.name.tag.namespace.storymatic" },
+            "3": { "name": "punctuation.separator.namespace.storymatic" },
+            "4": { "name": "entity.name.tag.storymatic" },
+            "5": { "name": "support.class.component.storymatic" }
+          },
+          "end": "(?=[/]?>)",
+          "patterns": [
+            { "include": "#comment" },
+            { "include": "#type-arguments" },
+            { "include": "#jsx-tag-attributes" }
+          ]
         },
         {
-          "name": "entity.other.attribute-name.storymatic",
-          "match": "\\w+"
-        },
-        {
-          "name": "keyword.operator.assignment.storymatic",
-          "match": "="
-        },
-        {
-          "begin": "\\{",
-          "end": "\\}",
-          "patterns": [{ "include": "#global" }]
+          "begin": "(>)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.end.storymatic" }
+          },
+          "end": "(?=</)",
+          "contentName": "meta.jsx.children.storymatic",
+          "patterns": [{ "include": "#jsx-children" }]
         }
       ]
     },
     "jsx-children": {
       "patterns": [
-        {
-          "name": "meta.jsx.children.storymatic",
-          "include": "#jsx-element"
-        },
-        {
-          "name": "meta.jsx.children.storymatic",
-          "begin": "(.*)\\{",
-          "end": "\\}(.*)",
-          "patterns": [{ "include": "#global" }]
-        }
+        { "include": "#jsx-tag-without-attributes" },
+        { "include": "#jsx-tag" },
+        { "include": "#jsx-evaluated-code" },
+        { "include": "#jsx-entities" }
       ]
     },
-    "strings": {
-      "begin": "([\"'])",
-      "end": "\\1",
-      "name": "string.quoted.double.storymatic",
+    "jsx-evaluated-code": {
+      "contentName": "meta.embedded.expression.storymatic",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.section.embedded.begin.storymatic" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.section.embedded.end.storymatic" }
+      },
+      "patterns": [{ "include": "#expression" }]
+    },
+    "jsx-entities": {
       "patterns": [
         {
-          "name": "constant.character.escape.storymatic",
-          "match": "\\\\x[0-9a-fA-F]{2}"
+          "name": "constant.character.entity.storymatic",
+          "match": "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)",
+          "captures": {
+            "1": { "name": "punctuation.definition.entity.storymatic" },
+            "3": { "name": "punctuation.definition.entity.storymatic" }
+          }
         },
-        {
-          "name": "constant.character.escape.storymatic",
-          "match": "\\\\u[0-9a-fA-F]{4}"
-        },
-        {
-          "name": "constant.character.escape.storymatic",
-          "match": "\\\\u\\{[0-9a-fA-F]+\\}"
-        },
-        {
-          "name": "constant.character.escape.storymatic",
-          "match": "\\\\."
-        },
-        {
-          "begin": "\\{",
-          "end": "\\}",
-          "name": "meta.template.expression.storymatic meta.embedded.line.storymatic",
-          "patterns": [{ "include": "#global" }]
-        }
+        { "name": "invalid.illegal.bad-ampersand.storymatic", "match": "&" }
       ]
+    },
+    "jsx-tag-attributes": {
+      "name": "meta.tag.attributes.storymatic",
+      "begin": "\\s+",
+      "end": "(?=[/]?>)",
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#jsx-tag-attribute-name" },
+        { "include": "#jsx-tag-attribute-assignment" },
+        { "include": "#jsx-string-double-quoted" },
+        { "include": "#jsx-string-single-quoted" },
+        { "include": "#jsx-evaluated-code" },
+        { "include": "#jsx-tag-attributes-illegal" }
+      ]
+    },
+    "jsx-tag-attribute-name": {
+      "match": "(?x)\n  \\s*\n  (?:([_$[:alpha:]][-_$[:alnum:].]*)(:))?\n  ([_$[:alpha:]][-_$[:alnum:]]*)\n  (?=\\s|=|/?>|/\\*|//)",
+      "captures": {
+        "1": { "name": "entity.other.attribute-name.namespace.storymatic" },
+        "2": { "name": "punctuation.separator.namespace.storymatic" },
+        "3": { "name": "entity.other.attribute-name.storymatic" }
+      }
+    },
+    "jsx-tag-attribute-assignment": {
+      "name": "keyword.operator.assignment.storymatic",
+      "match": "=(?=\\s*(?:'|\"|{|/\\*|//|\\n))"
+    },
+    "jsx-string-double-quoted": {
+      "name": "string.quoted.double.storymatic",
+      "begin": "\"",
+      "end": "\"",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.string.begin.storymatic" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.end.storymatic" }
+      },
+      "patterns": [{ "include": "#jsx-entities" }]
+    },
+    "jsx-string-single-quoted": {
+      "name": "string.quoted.single.storymatic",
+      "begin": "'",
+      "end": "'",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.string.begin.storymatic" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.end.storymatic" }
+      },
+      "patterns": [{ "include": "#jsx-entities" }]
+    },
+    "jsx-tag-attributes-illegal": {
+      "name": "invalid.illegal.attribute.storymatic",
+      "match": "\\S+"
     }
   },
   "scopeName": "source.storymatic"
