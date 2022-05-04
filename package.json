@@ -4,6 +4,7 @@
   "description": "Storymatic language support with built-in compiling",
   "version": "1.0.1",
   "icon": "logo.png",
+  "publisher": "zsakowitz",
   "engines": {
     "vscode": "^1.50.0"
   },
