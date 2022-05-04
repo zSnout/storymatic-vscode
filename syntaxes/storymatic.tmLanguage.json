@@ -5,11 +5,14 @@
     { "include": "#parenthesized" },
     { "include": "#bracketed" },
     { "include": "#object" },
+    { "include": "#typeparams" },
     { "include": "#separators" },
     { "include": "#constants" },
     { "include": "#strings" },
     { "include": "#jsx" },
-    { "include": "#keywords" }
+    { "include": "#keywords" },
+    { "include": "#identifier" },
+    { "include": "#comment" }
   ],
   "repository": {
     "parenthesized": {
@@ -30,10 +33,29 @@
     "object": {
       "begin": "\\{",
       "end": "\\}",
-      "name": "meta.object.literal.storymatic",
+      "name": "meta.objectliteral.storymatic",
       "beginCaptures": { "0": { "name": "meta.brace.storymatic" } },
       "endCaptures": { "0": { "name": "meta.brace.storymatic" } },
       "patterns": [{ "include": "source.storymatic" }]
+    },
+    "typeparams": {
+      "begin": "<",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.typeparameters.storymatic"
+        }
+      },
+      "end": ">",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.typeparameters.storymatic"
+        }
+      },
+      "patterns": [{ "include": "source.storymatic" }]
+    },
+    "identifier": {
+      "name": "variable",
+      "match": "(?!\\d)\\w+(?:\\s+\\w+)*"
     },
     "separators": {
       "patterns": [
@@ -151,7 +173,7 @@
           "end": "(?=[/]?>)",
           "patterns": [
             { "include": "#comment" },
-            { "include": "#type-arguments" },
+            { "include": "#typeparams" },
             { "include": "#jsx-tag-attributes" }
           ]
         },
@@ -184,7 +206,7 @@
       "endCaptures": {
         "0": { "name": "punctuation.section.embedded.end.storymatic" }
       },
-      "patterns": [{ "include": "#expression" }]
+      "patterns": [{ "include": "source.storymatic" }]
     },
     "jsx-entities": {
       "patterns": [
@@ -252,6 +274,19 @@
     "jsx-tag-attributes-illegal": {
       "name": "invalid.illegal.attribute.storymatic",
       "match": "\\S+"
+    },
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.block",
+          "begin": "\\/\\*",
+          "end": "\\*\\/"
+        },
+        {
+          "name": "comment.line.double-slash",
+          "match": "\\/\\/.*$"
+        }
+      ]
     }
   },
   "scopeName": "source.storymatic"
